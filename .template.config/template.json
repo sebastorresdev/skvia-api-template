@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "Sebastian Torres",
+  "classifications": [ "Web", "WebAPI", "MinimalAPI" ],
+  "name": "Skvia Architecture Template", // 🏢 Nombre oficial de tu empresa
+  "identity": "Skvia.Architecture.Template", // 🆔 Identificador único de Skvia
+  "shortName": "skvia-api", // 🚀 ¡Tu nuevo comando personalizado!
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  },
+  "sourceName": "SkviaApiTemplate", // 🔍 CRÍTICO: .NET buscará la palabra "BubbaSuite" en namespaces y en el .sln para reemplazarla
+  "preferNameDirectory": true,
+  "sources": [
+    {
+      "modifiers": [
+        {
+          "exclude": [
+            "**/bin/**",
+            "**/obj/**",
+            "**/.vs/**",
+            "**/.idea/**",
+            "**/*.db",
+            "**/Migrations/**" 
+          ]
+        }
+      ]
+    }
+  ]
+}

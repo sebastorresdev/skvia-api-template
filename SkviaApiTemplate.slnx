@@ -1,0 +1,7 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/SkviaApiTemplate.AppHost/SkviaApiTemplate.AppHost.csproj" />
+    <Project Path="src/SkviaApiTemplate.ServiceDefaults/SkviaApiTemplate.ServiceDefaults.csproj" />
+    <Project Path="src/SkviaApiTemplate.WebApi/SkviaApiTemplate.WebApi.csproj" />
+  </Folder>
+</Solution>
