@@ -2,7 +2,13 @@
 
 namespace SkviaApiTemplate.WebApi.Auth.Services;
 
-public class PasswordService
+public interface IPasswordService
+{
+    string Hash(string password);
+    bool Verify(string password, string passwordHash);
+}
+
+public class PasswordService : IPasswordService
 {
     private const int SaltSize = 16;
     private const int HashSize = 32;
@@ -17,7 +23,7 @@ public class PasswordService
         return $"{Convert.ToHexString(hash)}-{Convert.ToHexString(salt)}";
     }
 
-    public bool Verificar(string password, string passwordHash)
+    public bool Verify(string password, string passwordHash)
     {
         var partes = passwordHash.Split('-');
         var hash = Convert.FromHexString(partes[0]);

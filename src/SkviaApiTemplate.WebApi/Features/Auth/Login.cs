@@ -22,7 +22,7 @@ public class Login : IEndpoint
         LoginRequest request,
         AppDbContext db,
         IJwtService jwtService,
-        PasswordService passwordService,
+        IPasswordService passwordService,
         CancellationToken ct)
     {
         var normalizedUserName = request.UserName.Trim().ToUpperInvariant();
@@ -42,7 +42,7 @@ public class Login : IEndpoint
             })
             .FirstOrDefaultAsync(ct);
 
-        if(user is null || !passwordService.Verificar(request.Password, user.PasswordHash))
+        if(user is null || !passwordService.Verify(request.Password, user.PasswordHash))
             return IdentityErrors.InvalidCredentials.ToProblem();
 
         var token = jwtService.GenerateToken(

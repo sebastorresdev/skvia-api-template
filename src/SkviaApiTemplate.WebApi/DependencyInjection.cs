@@ -34,7 +34,7 @@ public static class DependencyInjection
             });
 
             // Auth
-            services.AddScoped<PasswordService>();
+            services.AddScoped<IPasswordService,PasswordService>();
             services.AddScoped<CurrentUser>();
 
             // DB

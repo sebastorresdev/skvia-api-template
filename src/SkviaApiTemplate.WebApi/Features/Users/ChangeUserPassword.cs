@@ -27,7 +27,7 @@ public class ChangeUserPassword : IEndpoint
     private static async Task<IResult> Handle(
         Guid id,
         ChangeUserPasswordRequest request,
-        PasswordService passwordService,
+        IPasswordService passwordService,
         AppDbContext db,
         CancellationToken ct)
     {

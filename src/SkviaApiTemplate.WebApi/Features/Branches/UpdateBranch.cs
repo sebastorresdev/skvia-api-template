@@ -5,7 +5,7 @@ namespace SkviaApiTemplate.WebApi.Features.Branches;
 
 public class UpdateBranch : IEndpoint
 {
-    public record UpdateBranchRequest(string Name, string? Address);
+    public record UpdateBranchRequest(string Code, string Name, string? Address);
 
     public class UpdateBranchValidator : AbstractValidator<UpdateBranchRequest>
     {
@@ -38,14 +38,15 @@ public class UpdateBranch : IEndpoint
 
         if (branch is null)
             return BranchesErrors.NotFound(id).ToProblem();
-        
-        var cleanNormalizedName = request.Name.ToUpperInvariant();
+
+        var cleanNormalizedCode = request.Code.Trim().ToUpperInvariant();
         
         if(await db.Branches
-               .AnyAsync(b => b.NormalizedName == cleanNormalizedName && b.Id != id, ct))
+               .AnyAsync(b => b.Code == cleanNormalizedCode && b.Id != id, ct))
             return BranchesErrors.DuplicateBranch(request.Name).ToProblem();
 
         branch.Update(
+            code: request.Code,
             name: request.Name,
             address: request.Address);
 

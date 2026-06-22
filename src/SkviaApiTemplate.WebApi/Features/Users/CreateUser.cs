@@ -46,7 +46,7 @@ public class CreateUser : IEndpoint
     private static async Task<IResult> Handle(
         CreateUserRequest request,
         AppDbContext db,
-        PasswordService passwordService,
+        IPasswordService passwordService,
         CancellationToken ct)
     {
         var normalizedUserName = request.Username.Trim().ToUpperInvariant();

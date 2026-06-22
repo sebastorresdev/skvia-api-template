@@ -1,5 +1,16 @@
 ﻿namespace SkviaApiTemplate.WebApi.Domain.Common;
 
+public interface IAuditableEntity
+{
+    DateTimeOffset CreatedAt { get; set; }
+    Guid CreatedBy { get; set; }
+    
+    DateTimeOffset? UpdatedAt { get; set; }
+    Guid? UpdatedBy { get; set; }
+    
+    bool IsActive { get; }
+}
+
 public abstract class BaseAuditableEntity : BaseEntity, IAuditableEntity
 {
     public DateTimeOffset CreatedAt { get; set; }
@@ -15,15 +26,4 @@ public abstract class BaseAuditableEntity : BaseEntity, IAuditableEntity
 
     public void Unarchive() 
         => IsActive = true;
-}
-
-public interface IAuditableEntity
-{
-    DateTimeOffset CreatedAt { get; set; }
-    Guid CreatedBy { get; set; }
-    
-    DateTimeOffset? UpdatedAt { get; set; }
-    Guid? UpdatedBy { get; set; }
-    
-    bool IsActive { get; }
 }

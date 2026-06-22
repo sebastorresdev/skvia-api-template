@@ -6,26 +6,11 @@ namespace SkviaApiTemplate.WebApi.Features.Branches;
 
 public class CreateBranch : IEndpoint
 {
-    public record CreateBranchRequest(string Name, string? Address);
-
-    public class CreateBranchValidator : AbstractValidator<CreateBranchRequest>
-    {
-        public CreateBranchValidator()
-        {
-            RuleFor(x => x.Name)
-                .NotEmpty().WithMessage("Name is required.")
-                .MaximumLength(50).WithMessage("Name cannot exceed 50 characters.");
-        }
-    }
-
-    private record CreateBranchResponse(Guid Id);
-
     public static void Map(RouteGroupBuilder group)
         => group.MapPost("/", Handle)
+            .WithSummary("Crear sucursal")
             .WithRequestValidation<CreateBranchRequest>()
             .WithPermission(Permissions.Branches.Create)
-            .WithSummary("Crear sucursal")
-            .WithDescription("Crea una nueva tienda/sucursal en el sistema.")
             .Produces<CreateBranchResponse>(StatusCodes.Status201Created)
             .ProducesProblem(StatusCodes.Status400BadRequest)
             .ProducesProblem(StatusCodes.Status409Conflict);
@@ -35,15 +20,16 @@ public class CreateBranch : IEndpoint
         AppDbContext db,
         CancellationToken ct)
     {
-        var cleanName = request.Name.Trim();
+        var cleanCode = request.Code.Trim().ToUpperInvariant();
         
         var branchExisting = await db.Branches
-            .AnyAsync(b => b.Name.ToLower() == cleanName.ToLower(), ct);
+            .AnyAsync(b => b.Code == cleanCode, ct);
 
         if (branchExisting) 
-            return BranchesErrors.DuplicateBranch(request.Name).ToProblem();
+            return BranchesErrors.DuplicateBranch(request.Code).ToProblem();
 
         var branch = Branch.Create(
+            code: request.Code,
             name: request.Name,
             address: request.Address);
 
@@ -54,3 +40,17 @@ public class CreateBranch : IEndpoint
             new CreateBranchResponse(branch.Id));
     }
 }
+
+public record CreateBranchRequest(string Code, string Name, string? Address);
+
+public class CreateBranchValidator : AbstractValidator<CreateBranchRequest>
+{
+    public CreateBranchValidator()
+    {
+        RuleFor(x => x.Name)
+            .NotEmpty().WithMessage("Name is required.")
+            .MaximumLength(50).WithMessage("Name cannot exceed 50 characters.");
+    }
+}
+
+public record CreateBranchResponse(Guid Id);

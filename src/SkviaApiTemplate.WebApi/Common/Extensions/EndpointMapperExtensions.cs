@@ -18,7 +18,7 @@ public static class EndpointMapperExtensions
                 var ns = t.Namespace ?? "";
                 var segments = ns.Split('.');
                 var idx = Array.IndexOf(segments, "Features");
-                return string.Join("/", segments.Skip(idx + 1).Select(s => s.ToLower()));
+                return segments[idx + 1].ToLower();
             });
 
             foreach(var group in grouped)

@@ -13,12 +13,13 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IE
     {
         logger.LogError(exception, "Ocurrió una excepción no controlada: {Message}", exception.Message);
 
-        if (exception is DbUpdateException dbUpdateException &&
-            dbUpdateException.InnerException is PostgresException postgresException)
+        // Buscamos si en CUALQUIER parte de la cadena de excepciones viene una PostgresException
+        if (TryFindPostgresException(exception, out var postgresException))
         {
             return await HandlePostgresExceptionAsync(httpContext, postgresException, cancellationToken);
         }
 
+        // Si no es un error de base de datos controlado, sigue el flujo normal de Error 500
         var defaultProblemDetails = new ProblemDetails
         {
             Status = StatusCodes.Status500InternalServerError,
@@ -32,13 +33,33 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IE
         return true;
     }
 
-    private static async Task<bool> HandlePostgresExceptionAsync(HttpContext httpContext, PostgresException postgresException, CancellationToken cancellationToken)
+    // Método auxiliar para excavar de forma segura en las excepciones internas
+    private static bool TryFindPostgresException(Exception? ex, out PostgresException postgresException)
+    {
+        while (ex != null)
+        {
+            if (ex is PostgresException pgEx)
+            {
+                postgresException = pgEx;
+                return true;
+            }
+            ex = ex.InnerException;
+        }
+
+        postgresException = null!;
+        return false;
+    }
+
+    private static async Task<bool> HandlePostgresExceptionAsync(
+        HttpContext httpContext, 
+        PostgresException postgresException, 
+        CancellationToken cancellationToken)
     {
         ProblemDetails problemDetails;
 
         switch (postgresException.SqlState)
         {
-            // Código de violación de constraint único
+            // Código de violación de constraint único (Duplicate Key)
             case "23505":
                 problemDetails = new ProblemDetails
                 {
@@ -48,7 +69,7 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IE
                 };
                 break;
 
-            // Código de violación de constraint de clave foránea
+            // Código de violación de constraint de clave foránea (Foreign Key Violation)
             case "23503":
                 problemDetails = new ProblemDetails
                 {
@@ -59,7 +80,7 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IE
                 break;
 
             default:
-                // No manejamos esta excepción de Postgres, dejamos que siga el flujo al error 500
+                // No mapeamos este código específico de Postgres, devolvemos un error 500 genérico de BD
                 var defaultProblemDetails = new ProblemDetails
                 {
                     Status = StatusCodes.Status500InternalServerError,

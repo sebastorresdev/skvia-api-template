@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using SkviaApiTemplate.WebApi.Common.Constans;
 
 namespace SkviaApiTemplate.WebApi.Persistence.Configurations.Identity;
 
@@ -7,7 +6,7 @@ public class IdentityUserConfiguration : IEntityTypeConfiguration<User>
 {
     public void Configure(EntityTypeBuilder<User> builder)
     {
-        builder.ToTable("users", DatabaseScheme.Auth);
+        builder.ToTable("users");
 
         builder.HasKey(u => u.Id);
         builder.Property(u => u.Id).ValueGeneratedNever();
@@ -27,13 +26,6 @@ public class IdentityUserConfiguration : IEntityTypeConfiguration<User>
                .WithMany(r => r.Users)
                .HasForeignKey(u => u.RoleId)
                .OnDelete(DeleteBehavior.Restrict);
-        
-        // Configuración por logica de negocio BUBBA
-        builder.HasOne(u => u.Branch)
-               .WithOne()
-               .HasForeignKey<User>(u => u.BranchId)
-               .IsRequired(false)
-               .OnDelete(DeleteBehavior.Restrict);
     }
 }
 
@@ -41,7 +33,7 @@ public class IdentityRoleConfiguration : IEntityTypeConfiguration<Role>
 {
     public void Configure(EntityTypeBuilder<Role> builder)
     {
-        builder.ToTable("roles", DatabaseScheme.Auth);
+        builder.ToTable("roles");
 
         builder.HasKey(r => r.Id);
         builder.Property(r => r.Id).ValueGeneratedNever();
@@ -59,7 +51,7 @@ public class IdentityPermissionConfiguration : IEntityTypeConfiguration<Permissi
 {
     public void Configure(EntityTypeBuilder<Permission> builder)
     {
-        builder.ToTable("permissions", DatabaseScheme.Auth);
+        builder.ToTable("permissions");
 
         builder.HasKey(p => p.Id);
         builder.Property(p => p.Id).ValueGeneratedNever();
@@ -79,7 +71,7 @@ public class IdentityRolePermissionConfiguration : IEntityTypeConfiguration<Role
 {
     public void Configure(EntityTypeBuilder<RolePermission> builder)
     {
-        builder.ToTable("roles_permissions", DatabaseScheme.Auth);
+        builder.ToTable("roles_permissions");
 
         // 1. La llave primaria sigue siendo compuesta (No usas Guid.NewGuid() para la entidad)
         builder.HasKey(rp => new { RolId = rp.RoleId, PermisoId = rp.PermissionId });
